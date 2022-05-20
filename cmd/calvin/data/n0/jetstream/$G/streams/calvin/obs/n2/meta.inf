@@ -1,0 +1,1 @@
+{"Created":"2022-05-20T09:40:28.870574434Z","Name":"n2","durable_name":"n2","deliver_policy":"all","ack_policy":"explicit","ack_wait":30000000000,"max_deliver":1,"replay_policy":"original","max_waiting":512,"max_ack_pending":1000}
