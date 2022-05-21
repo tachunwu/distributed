@@ -3,28 +3,27 @@ package main
 import (
 	"fmt"
 	"log"
-	"runtime"
 	"time"
 
 	"github.com/nats-io/nats.go"
 )
 
-var txnCount int = 10
+var txnCount int = 333333
 
 func main() {
 
 	// Connect to NATS
-	n0, err := nats.Connect("nats://localhost:4000")
+	n0, err := nats.Connect("localhost:4000")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	n1, err := nats.Connect("nats://localhost:4001")
+	n1, err := nats.Connect("localhost:4001")
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	n2, err := nats.Connect("nats://localhost:4002")
+	n2, err := nats.Connect("localhost:4002")
 	if err != nil {
 		log.Println(err)
 		return
@@ -38,7 +37,7 @@ func main() {
 	// Create sequencer stream
 	s0.AddStream(&nats.StreamConfig{
 		Name:       "CALVIN",
-		Subjects:   []string{"CALVIN.*"},
+		Subjects:   []string{"seq"},
 		Storage:    nats.FileStorage,
 		Duplicates: 2 * time.Minute,
 	})
@@ -60,9 +59,9 @@ func main() {
 	go AsyncPublish(txnCount, s2)
 
 	// Pull subscribe
-	go PullSubscribe(1, "N0", s0)
-	go PullSubscribe(1, "N1", s1)
-	go PullSubscribe(1, "N2", s2)
+	go PullSubscribe(512, "N0", s0)
+	go PullSubscribe(512, "N1", s1)
+	PullSubscribe(512, "N2", s2)
 
 	// Sync subscribe
 	// go SyncSubscribe("N0", s0)
@@ -70,15 +69,15 @@ func main() {
 	// go SyncSubscribe("N2", s2)
 
 	// Wait
-	for {
-		runtime.Gosched()
-	}
+	// for {
+	// 	runtime.Gosched()
+	// }
 
 }
 
 func AsyncPublish(txnCount int, s nats.JetStreamContext) {
 	for i := 0; i < txnCount; i++ {
-		s.PublishAsync("CALVIN.SEQ", []byte("Txn: "+fmt.Sprint(i)))
+		s.PublishAsync("seq", []byte("Txn: "+fmt.Sprint(i)))
 	}
 	select {
 	case <-s.PublishAsyncComplete():
@@ -88,26 +87,27 @@ func AsyncPublish(txnCount int, s nats.JetStreamContext) {
 }
 
 func PullSubscribe(batchSize int, consumer string, s nats.JetStreamContext) {
+	sub, _ := s.PullSubscribe("seq", consumer, nats.PullMaxWaiting(128))
+
+	i := 1
+	start := time.Now()
 	for {
-		sub, err := s.PullSubscribe("CALVIN.SEQ", consumer)
-		if err != nil {
-			log.Println("Pull: ", err)
-		}
-
-		msgs, err := sub.Fetch(batchSize)
-		if err != nil {
-			log.Println("Pull: ", err)
-		}
-
-		for i := range msgs {
-			fmt.Sprintln(msgs[i].Data)
+		msgs, _ := sub.Fetch(batchSize)
+		for _, msg := range msgs {
+			fmt.Println(consumer, ": ", i)
+			msg.Ack()
+			i++
+			if i == 999999 {
+				elapsed := time.Since(start)
+				log.Printf("100,0000 txn process time: %s", elapsed)
+			}
 		}
 	}
 
 }
 
 func SyncSubscribe(consumer string, s nats.JetStreamContext) {
-	sub, err := s.SubscribeSync("CALVIN.SEQ", nats.Durable(consumer), nats.MaxDeliver(3))
+	sub, err := s.SubscribeSync("seq", nats.Durable(consumer), nats.MaxDeliver(3))
 	if err != nil {
 		log.Println(err)
 	}
