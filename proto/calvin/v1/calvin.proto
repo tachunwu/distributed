@@ -1,0 +1,12 @@
+syntax = "proto3";
+package calvin.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
+
+
+option go_package = "github.com/tachunwu/distributed/pkg/proto/calvin/v1";
+
+message Transaction {
+    
+}

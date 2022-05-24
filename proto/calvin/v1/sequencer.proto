@@ -1,0 +1,21 @@
+syntax = "proto3";
+package calvin.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/field_mask.proto";
+import "calvin/v1/calvin.proto";
+
+option go_package = "github.com/tachunwu/distributed/pkg/proto/calvin/v1";
+
+service SequencerService {
+    rpc ReceiveNewTxn(ReceiveNewTxnRequest) returns (ReceiveNewTxnResponse) {
+    }
+}
+
+message ReceiveNewTxnRequest {
+    calvin.v1.Transaction txn = 1;
+}
+
+message ReceiveNewTxnResponse {
+    calvin.v1.Transaction txn = 1;
+}
