@@ -1,0 +1,36 @@
+syntax = "proto3";
+package conscious.v1;
+
+option go_package = "github.com/tachunwu/distributed/pkg/proto/conscious/v1";
+
+// This is platform API define
+service ConsciousService {
+    rpc ReceiveNewTxn(ReceiveNewTxnRequest) returns (ReceiveNewTxnResponse) {}
+}
+
+// <service>/<table>/<index>
+
+message ReceiveNewTxnRequest {
+    Txn txn = 1;
+}
+
+message ReceiveNewTxnResponse {
+    string error = 1;
+}
+
+message Txn {
+    TxnMetadata metadata = 1;
+}
+
+message TxnMetadata {
+    string id = 1;
+    string service = 2;
+}
+
+message KeyEntry {
+    bytes key = 1;
+    uint32 master = 2;
+    uint64 counter = 3;
+}
+
+

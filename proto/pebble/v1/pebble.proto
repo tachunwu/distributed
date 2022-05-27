@@ -1,0 +1,73 @@
+syntax = "proto3";
+package pebble.v1;
+
+option go_package = "github.com/tachunwu/distributed/pkg/proto/pebble/v1";
+
+service PebbleService {
+    rpc Get(GetRequest) returns (GetResponse){}
+    rpc Set(SetRequest) returns (SetResponse){}
+    rpc Delete(DeleteRequest) returns (DeleteResponse){}
+    rpc Scan(ScanRequest) returns (ScanResponse){}
+    rpc Batch(BatchRequest) returns (BatchResponse){}
+}
+
+message GetRequest {
+    bytes key = 1;
+}
+message GetResponse {
+    string error = 1;
+    bytes value = 2;
+    bool not_found = 3;
+}
+message SetRequest {
+    bytes key = 1;
+    bytes value = 2;
+}
+message SetResponse {
+    string error = 1;
+}
+message DeleteRequest {
+    bytes key = 1;
+}
+message DeleteResponse {
+    string error = 1;
+}
+message ScanRequest {
+    bytes start_key = 1;
+    bytes end_key = 2;
+    uint32 limit = 3;
+}
+
+message ScanResponse {
+    string error = 1;
+    repeated KeyValue kvs = 2;
+}
+
+message BatchRequest {
+    Batch batch = 1;
+}
+
+message BatchResponse {
+    string error = 1;
+}
+
+message KeyValue {
+    string error = 1;
+    bytes key = 2;
+    bytes value = 3; 
+}
+
+message Batch {
+    repeated Mutation mutations = 1;
+}
+
+enum Op {
+    Set = 0;
+    Delete = 1;
+}
+
+message Mutation {
+    Op op = 1;
+    bytes key = 2;
+    bytes value = 3;
+}
