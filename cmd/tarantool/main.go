@@ -18,20 +18,19 @@ func main() {
 		"tester",
 		[]interface{}{4, "ABBA", 1972},
 	)
-	fmt.Println(resp.Code)
-	fmt.Println(resp.Data)
+	fmt.Println(resp)
 
-	resp, err = conn.Select(
-		"tester", "primary", 0, 1, tarantool.IterEq,
-		[]interface{}{4},
-	)
-	fmt.Println(resp.Code)
-	fmt.Println(resp.Data)
+	// resp, err = conn.Select(
+	// 	"tester", "primary", 0, 1, tarantool.IterEq,
+	// 	[]interface{}{4},
+	// )
+	// fmt.Println(resp.Code)
+	// fmt.Println(resp.Data)
 
-	resp, err = conn.Select(
-		"tester", "secondary", 0, 1, tarantool.IterEq,
-		[]interface{}{"ABBA"},
-	)
-	fmt.Println(resp.Code)
-	fmt.Println(resp.Data)
+	// resp, err = conn.Select(
+	// 	"tester", "secondary", 0, 1, tarantool.IterEq,
+	// 	[]interface{}{"ABBA"},
+	// )
+	// fmt.Println(resp.Code)
+	// fmt.Println(resp.Data)
 }
